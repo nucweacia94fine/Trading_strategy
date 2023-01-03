@@ -49,29 +49,39 @@ def future_daily_download(daily_number = 1):
             mv_path = './' # 解壓後欲存放之資料夾路徑
             shutil.move(DL_directory + unzipped_filename, mv_path + unzipped_filename)
 
+
 def main():
+    ###### Parameter Initialize ######
+    sleep_time = 0.001
+    Ty = datetime.datetime.now()
+        
     while True: 
         Tx = datetime.datetime.now()
-        if Tx.hour == 8 and Tx.minute == 30:
-        ###### Future Daily Download ######    
-            future_daily_download()
+        if Tx.second != Ty.second:
+        ###### 1 minute Response ######
+            if Tx.second == 0:
+                if Tx.hour == 8 and Tx.minute == 30:
+                ###### Future Daily Download ######    
+                    future_daily_download()
+                
+                ###### Awaken Time Setting ######
+                if Tx.time() <= datetime.time(8,30,0):
+                    wake_time = datetime.datetime(Tx.year, Tx.month, Tx.day, 8, 25, 0)    
+                else:
+                    Tx_next = Tx + datetime.timedelta(days=+1)
+                    wake_time = datetime.datetime(Tx_next.year, Tx_next.month, Tx_next.day, 8, 25, 0)
+                #sleep_time = int(wake_time.timestamp() - Tx.timestamp())
+                sleep_time = (wake_time - Tx).seconds
+                sleep_time_hr = int(sleep_time/3600)
+                sleep_time_min = int((sleep_time % 3600) /60)
+                sleep_time_sec = sleep_time % 60
+                print("\n{:^111}\n".format("ZZZZzzzzzz  System Sleep Time  {:02d}:{:02d}:{:02d}  zzzzzzZZZZ")\
+                                            .format(sleep_time_hr, sleep_time_min, sleep_time_sec))
+            
+        T_module.sleep(sleep_time) 
         
-        ###### Awaken time setting ######
-        if Tx.time() <= datetime.time(8,30,0):
-            wake_time = datetime.datetime(Tx.year, Tx.month, Tx.day, 8, 25, 0)    
-        else:
-            Tx_next = Tx + datetime.timedelta(days=+1)
-            wake_time = datetime.datetime(Tx_next.year, Tx_next.month, Tx_next.day, 8, 25, 0)
-        #sleep_time = int(wake_time.timestamp() - Tx.timestamp())
-        sleep_time = (wake_time - Tx).seconds
-        sleep_time_hr = int(sleep_time/3600)
-        sleep_time_min = int((sleep_time % 3600) /60)
-        sleep_time_sec = sleep_time % 60
-        print("\n{:^111}\n".format("ZZZZzzzzzz  System Sleep Time  {:02d}:{:02d}:{:02d}  zzzzzzZZZZ")\
-                                    .format(sleep_time_hr, sleep_time_min, sleep_time_sec))
-        
-        T_module.sleep(sleep_time)  # Sleep in Second Unit
-        sleep_time = 0.001
+        sleep_time = 0.001        
+        Ty = Tx
         
 if __name__ == "__main__":
     future_daily_download()
